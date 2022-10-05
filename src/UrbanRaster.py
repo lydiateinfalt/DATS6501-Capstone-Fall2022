@@ -279,8 +279,10 @@ class urbanGriddedPop(object):
         if len(raster_pop):
             out_metadata = popRaster.meta.copy()
             urban_pop = data * urban_raster
-            with rasterio.open(raster_pop, 'w', **out_metadata) as rOut:
-                rOut.write(urban_pop)
+            if not os.path.exists(raster_pop):
+                f = open(raster_pop,'w')
+                with rasterio.open(raster_pop, 'w', **out_metadata) as rOut:
+                    rOut.write(urban_pop)
         
         xx = pd.DataFrame(allFeatures, columns=['ID', 'Pop','geometry'])
         xxGeom = gpd.GeoDataFrame(xx, geometry='geometry')

@@ -28,10 +28,11 @@ sys.path.append("../../")
 #os.chdir('/content/drive/MyDrive/Colab Notebooks/GOST_Urban/')
 
 # Define input population raster
-output_folder = "/content/drive/MyDrive/Colab Notebooks/GOST_Urban/data/Output"
-data_folder = "/content/drive/MyDrive/Colab Notebooks/GOST_Urban/data/"
-aoi_file = os.path.join(data_folder, "Sindh_Province.geojson")
-pop_file = os.path.join(data_folder, "pak1k_gpo.tif")
+output_folder = "data/Output"
+data_folder = "data"
+acronym = 'pak1k'
+aoi_file = os.path.join(data_folder, "Sindh_shapefile.geojson")
+pop_file = os.path.join(data_folder, acronym + ".tif")
 out_urban = os.path.join(output_folder, "urban_extents.geojson")
 out_hd_urban = os.path.join(output_folder, "hd_urban_extents.geojson")
 
@@ -41,7 +42,7 @@ inAOI = gpd.read_file(aoi_file)
 if not os.path.exists(pop_file):
     sys.path.append("../../../gostrocks/src")
     import GOSTRocks.rasterMisc as rMisc
-    global_population = "/content/drive/MyDrive/Colab Notebooks/GOST_Urban/data/ppp_2020_1km_Aggregated.tif"
+    global_population = "data/ppp_2020_1km_Aggregated.tif"
     inR = rasterio.open(global_population)
     rMisc.clipRaster(inR, inAOI, pop_file)
     
@@ -52,20 +53,17 @@ urban_calculator = urban.urbanGriddedPop(inR)
 urban_calculator.calculateUrban
 
 urban_extents = urban_calculator.calculateUrban(densVal=300, totalPopThresh=5000, 
-                                               smooth=False, queen=False,
+                                               smooth=False, queen=False,raster_pop='data/' + acronym + 'urban.tif',
                                                verbose=True)
 
 hd_urban_extents = urban_calculator.calculateUrban(densVal=1500, totalPopThresh=50000, 
-                                               smooth=True, queen=True,
+                                               smooth=True, queen=True,raster_pop ='data/' + acronym + 'hdurban.tif',
                                                verbose=True)
 
-output_folder = "/content/drive/MyDrive/Colab Notebooks/GOST_Urban/data/Output"
+output_folder = "data/Output"
 out_urban = os.path.join(output_folder, "urban_extents.geojson")
 out_hd_urban = os.path.join(output_folder, "hd_urban_extents.geojson")
 
 urban_extents.to_file(out_urban, driver="GeoJSON")
 hd_urban_extents.to_file(out_hd_urban, driver="GeoJSON")
 
-hd_urban_ext = '/content/drive/MyDrive/Colab Notebooks/GOST_Urban/data/Input Data Urban Calculations/FINAL_STANDARD_1KM/hd_urban_extents.geojson'
-hd_urban = gpd.read_file(hd_urban_ext)
-print(hd_urban.head())
