@@ -30,9 +30,9 @@ sys.path.append("../../")
 # Define input population raster
 output_folder = "data/Output"
 data_folder = "data"
-acronym = 'punjab_pak1k'
+acronym = 'punjab_'
 aoi_file = os.path.join(data_folder, "Punjab.geojson")
-pop_file = os.path.join(data_folder, "punjab_pak1k_gpo.tif")
+pop_file = os.path.join(data_folder, "punjab_gpo.tif")
 # out_urban = os.path.join(output_folder, "urban_extents.geojson")
 # out_hd_urban = os.path.join(output_folder, "hd_urban_extents.geojson")
 
@@ -66,4 +66,9 @@ out_hd_urban = os.path.join(output_folder, acronym +"hd_urban_extents.geojson")
 
 urban_extents.to_file(out_urban, driver="GeoJSON")
 hd_urban_extents.to_file(out_hd_urban, driver="GeoJSON")
+
+out_urban = os.path.join(output_folder, acronym + "urban_extents.tif")
+out_hd_urban = os.path.join(output_folder, acronym +"hd_urban_extents.tif")
+
+
 

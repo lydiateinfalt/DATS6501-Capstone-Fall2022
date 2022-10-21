@@ -10,7 +10,7 @@ import sys
 from folium import GeoJson
 
 
-urban_extent = gpd.read_file("data/Output/punjab_pak1kurban_extents.geojson")
+urban_extent = gpd.read_file("data/Output/punjab_urban_extents.geojson")
 
 print(urban_extent.crs)
 print(urban_extent['geometry'][2])
@@ -40,7 +40,7 @@ text = file.read()
 # GeoJson(text).add_to(map)
 map.save('punjab_urban_map.html')
 
-hd_urban = gpd.read_file("data/Output/punjab_pak1khd_urban_extents.geojson")
+hd_urban = gpd.read_file("data/Output/punjab_hd_urban_extents.geojson")
 print(hd_urban.crs)
 hd_urban.head()
 hd_urban = hd_urban.to_crs(epsg=4326)
