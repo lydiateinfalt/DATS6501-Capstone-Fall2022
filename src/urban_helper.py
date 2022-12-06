@@ -13,7 +13,7 @@ import geopandas as gpd
 import numpy as np
 
 sys.path.append("../")
-import GOST_Urban.UrbanRaster as urban
+import src.UrbanRaster as urban
 
 import GOSTRocks.rasterMisc as rMisc
 from GOSTRocks.misc import tPrint
@@ -219,7 +219,7 @@ class urban_country(object):
             if inR.crs.to_epsg() != self.inD.crs.to_epsg():
                 tempD = self.inD.to_crs(inR.crs)
             else:
-                tempD = inD
+                tempD = self.inD
             ul = inR.index(*tempD.total_bounds[0:2])
             lr = inR.index(*tempD.total_bounds[2:4])
             # read the subset of the data into a numpy array

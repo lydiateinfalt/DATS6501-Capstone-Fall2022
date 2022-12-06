@@ -16,8 +16,8 @@ from GOSTRocks.misc import tPrint
 
 #Import GOST urban functions
 sys.path.append("../../../src")
-import GOST_Urban.UrbanRaster as urban
-import GOST_Urban.urban_helper as helper
+import src.UrbanRaster as urban
+import src.urban_helper as helper
 
 importlib.reload(helper)
 importlib.reload(rMisc)
@@ -166,13 +166,13 @@ class urban_data(object):
         with rasterio.open(out_bin_file, 'w', **res['profile']) as outBin:
             outBin.write(res['binD'])
             
-def multiP(iso3):
-    country_folder = os.path.join(base_folder, f'{iso3}_URBAN_DATA_new_naming')
-    urb = urban_data(iso3, country_folder, aapc_folder)
-    comboRes = urb.generate_combo_layer(pop_type=pop_layer)
-    if comboRes:
-        urb.write_results(comboRes, agg_folder)
-    tPrint(iso3)
+# def multiP(iso3):
+#     country_folder = os.path.join(base_folder, f'{iso3}_URBAN_DATA_new_naming')
+#     urb = urban_data(iso3, country_folder, aapc_folder)
+#     comboRes = urb.generate_combo_layer(pop_type=pop_layer)
+#     if comboRes:
+#         urb.write_results(comboRes, agg_folder)
+#     tPrint(iso3)
 
 def calculate_urban(iso3, inG, inG2, pop_files, ea_file, output_folder, km=True, small=True, include_ghsl_h20=True, evaluate=False):   
     global_landcover  = "/home/public/Data/GLOBAL/LANDCOVER/GLOBCOVER/2015/ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7.tif"
@@ -265,7 +265,7 @@ def calc_pp_urban(in_folder, default_pop_file, admin_layer, output_folder, iso3=
     inD = gpd.read_file(admin_layer)
     default_pop_1k = default_pop_file.replace(default_pop_file[:3], "%s1k" % default_pop_file[:3])
     for cur_layer in urban_layers:
-        #tPrint(cur_layer)
+        print(cur_layer)
         #Open and read in urban data
         urban_r = rasterio.open(cur_layer)
         urban_data = urban_r.read()
