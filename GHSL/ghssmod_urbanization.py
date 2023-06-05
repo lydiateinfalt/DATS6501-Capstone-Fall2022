@@ -64,9 +64,17 @@ def urban_cal(year, adm, inA, smod_file, pop_file, inRaster):
         #res = rMisc.zonalStats(inA, out_name, minVal=0)
         #res = pd.DataFrame(res, columns=["%s_%s_%s" % (x, year + "_" + adm, val) for x in ['SUM', 'MIN', 'MAX', 'MEAN']])
         #res = pd.DataFrame(res, columns=["%s_%s_%s" % (x, year + "_" + adm, val) for x in ['SUM']])
-        area = df_zones["Shape_Area"][0]
-        x = results[results['zone'] == area]['sum'].values
-        stats[val] = x
+        df1 = [df_zones,results]
+        df_zones['Shape_Area'] = df_zones['Shape_Area'].astype(np.float32)
+        #results['zone'] = results['zone'].astype(np.float64)
+        print(df_zones.dtypes)
+        print(results.dtypes)
+        results = results.rename(columns={'sum': 'sum_'+ str(val) } )
+        final =pd.merge(df_zones, results, how="left", left_on='Shape_Area', right_on='zone')
+        df_zones = final
+        df_zones = df_zones.rename(columns={'zone': 'zone_' + str(val)})
+        df_zones = df_zones[df_zones.columns.drop(list(df_zones.filter(regex='zone')))]
+        print(final)
 
         #try:
         #    final = final.join(stat)
