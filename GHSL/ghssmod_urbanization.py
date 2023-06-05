@@ -1,8 +1,10 @@
+#Author: Lydia Teinfalt
+#Last updated date: 06/05/2023
+##Data downloaded from https://ghsl.jrc.ec.europa.eu/download.php?ds=pop
 
 import geopandas as gpd
 import pandas as pd
 import rasterio
-#import sys, os, importlib
 import os
 import rasterio
 import GOSTRocks.rasterMisc as rMisc
