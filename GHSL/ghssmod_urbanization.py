@@ -17,7 +17,7 @@ import rioxarray
 
 smod_vals = [10, 11, 12, 13, 21, 22, 23, 30]
 #years = ["2000", "1995", "1990", "1985", "1980"]
-years = ["1975"]
+years = ["2010"]
 #read input files
 iso3 = 'PAK'
 shortnm = 'adm0'

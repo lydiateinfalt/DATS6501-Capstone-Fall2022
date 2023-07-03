@@ -1,13 +1,12 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import os
 import geopandas as gpd
 import src.novelUrbanization as novel
-import rasterio
-import numpy as np
-from glob import glob
 import os
-import openpyxl
+import seaborn as sns
+import matplotlib.pyplot as plt
+from itertools import product
+import numpy as np
+import scipy.stats as ss
 
 
 method = 'DB'
@@ -102,7 +101,7 @@ if method == 'DB':
     data_dir = os.path.join('dartboard', 'Delineations')
     pop_data_dir = os.path.join('dartboard', 'Sources')
     output_dir = os.path.join('dartboard','Output')
-    pop_data_src = ['pak_gpo.tif', 'pak_upo15.tif']
+    pop_data_src = ['pak1k_gpo.tif', 'pak1k_upo15.tif']
     admin = os.path.join('data', 'Administrative Unit Data', 'pak_admbnda_adm1_ocha_pco_gaul_20181218.shp')
     for src in pop_data_src:
         print('pop data = ' + src)
@@ -112,14 +111,14 @@ if method == 'DB':
             print(in_folder)
             db_urban = novel.calc_pp_urban(in_folder, src, admin, output_dir, '')
             df1 = db_urban[['ADM1_EN', 'pak1k_gpo', 'pak1k_gpod3b3000_ur', 'pak1k_gpod3b3000_cc', 'pak1k_gpod3b3000_co','pak_gpo','pak_gpod10b3000_ur', 'pak_gpod10b3000_cc', 'pak_gpod10b3000_co']]
-            df1.to_csv('db_gpo_1k_250m.csv')
+            df1.to_csv('dartboard/Output/db_pak_adm1_gpo_1k_250m.csv')
         if 'upo' in src:
             folder = 'upo15'
             in_folder = os.path.join(data_dir, folder)
             print(in_folder)
             db_urban = novel.calc_pp_urban(in_folder, src, admin, output_dir, '')
             df1 = db_urban[['ADM1_EN', 'pak1k_upo15', 'pak1k_upo15d3b3000_ur', 'pak1k_upo15d3b3000_cc', 'pak1k_upo15d3b3000_co','pak_upo15', 'pak_upo15d10b3000_ur', 'pak_upo15d10b3000_cc', 'pak_upo15d10b3000_co']]
-            df1.to_csv('db_upo15_1k_250m.csv')
+            df1.to_csv('dartboard/Output/db_pak_adm1_upo15_1k_250m.csv')
 
 
 if method == 'EDA':
@@ -136,6 +135,25 @@ if method == 'COMBINE_CSV':
             df = pd.read_csv(files)
             df.to_excel(writer, sheet_name=os.path.splitext(files)[0])
     writer.save()
+
+
+if method == 'CORR':
+    df = pd.read_excel('pak_national_urban.xlsx')
+    print('Dataframe columns:' + df.columns)
+    df_cat = pd.DataFrame(data=df.dtypes, columns=['a']).reset_index()
+    cat_var = list(df_cat['index'].loc[df_cat['a'] == 'object'])
+    df_cat = df[cat_var]
+    print(df_cat.head())
+    cat_var1 = ('source', 'resolution', 'method')
+    cat_var2 = ('source', 'resolution', 'method')
+    cat_var_prod = list(product(cat_var1, cat_var2, repeat=1))
+    result = []
+    for i in cat_var_prod:
+        if i[0] != i[1]:
+            result.append((i[0], i[1], list(ss.chi2_contingency(pd.crosstab(df_cat[i[0]], df_cat[i[1]])))[1]))
+    chi_test_output = pd.DataFrame(result, columns=['var1', '‘var2','coeff'])
+    ## Using pivot function to convert the above DataFrame into a crosstab
+    print(chi_test_output.pivot(index='var1', columns='var2', values ='coeff'))
 
 
 

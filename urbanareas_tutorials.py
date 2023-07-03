@@ -21,7 +21,7 @@ global_acronym = 'pak'
 pop_data_dir = ['FINAL_STANDARD_1KM']
 #pop_data_src = ['gpo', 'upo15']
 pop_data_src = ['gpo']
-shape_fn_keys = ['adm1_ocha']
+shape_fn_keys = ['adm2_ocha']
 
 def element_in_common(l1, l2):
     '''
