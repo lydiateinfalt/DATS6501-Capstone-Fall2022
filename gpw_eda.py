@@ -76,6 +76,7 @@ hd_urban_total_pop= total_pop_calc(hd_urban_raster, inAOI)
 print("Total Population for urban raster= " + urban_total_pop.astype(str))
 print("Total Population for hd urban raster= " + hd_urban_total_pop.astype(str))
 
+#Requires rasterizing of shape files
 def zonal_stats_calc(inRasters, inShapes):
     final = pd.DataFrame()
     for vector in inShapes:
