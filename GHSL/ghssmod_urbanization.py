@@ -4,14 +4,12 @@
 
 import geopandas as gpd
 import pandas as pd
-import rasterio
 import os
 import rasterio
 import GOSTRocks.rasterMisc as rMisc
 from rasterio import features
 import numpy as  np
 from xrspatial import zonal_stats
-import xarray as xr
 import rioxarray
 
 
@@ -49,7 +47,7 @@ for year in years:
 
         for val in smod_vals:
             cur_smod = (smod_file == val).astype(int)
-            smod = (smod_file == val)*pop_file
+            #smod = (smod_file == val)*pop_file
             cur_pop = pop_file * cur_smod
             total_curpop = cur_pop.sum()
             perUrban = (total_curpop.sum() / total_pop * 100)
