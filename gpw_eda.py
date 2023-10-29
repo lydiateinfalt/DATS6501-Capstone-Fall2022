@@ -3,14 +3,14 @@ import geopandas as gpd
 import rasterio
 import GOSTRocks.rasterMisc as rMisc
 import src.UrbanRaster as urban
+import src.urban_helper as helper
 import rioxarray
 from rasterio import features
-import xarray as xr
-from matplotlib import pyplot as plt
-#from xrspatial import zonal_stats
 from xrspatial.zonal import stats
 import numpy as np
 import pandas as pd
+
+
 
 #Gridded Population of the World (GPW), v4 https://sedac.ciesin.columbia.edu/data/collection/gpw-v4
 adm0 = "Administrative Unit Data/pak_admbnda_adm0_ocha_pco_gaul_20181218.shp"
@@ -25,6 +25,7 @@ adm_dict = {"Administrative Unit Data/pak_admbnda_adm0_ocha_pco_gaul_20181218.sh
 inAOI = gpd.read_file(adm0)
 output_dir = "gpw/output"
 aoi_pop = os.path.join(output_dir, "2015_PAK_GPW_POP.tif")
+iso3 = 'pak'
 
 if not os.path.exists(aoi_pop):
     global_pop = "gpw/gpw_v4_population_count_adjusted_to_2015_unwpp_country_totals_rev11_2015_30_sec.tif"
@@ -110,8 +111,32 @@ def zonal_stats_calc(inRasters, inShapes):
 rasters = [urban_raster, hd_urban_raster]
 zonal_stats_calc(rasters, adm_shapes)
 
-#rasters = [aoi_pop]
-#zonal_stats_calc(rasters, adm_shapes)
+def calculate_urban:
+
+    xx = helper.urban_country(iso3, output_folder, inD, pop_files,
+                              final_folder="FINAL_STANDARD_1KM", ghspop_suffix="1k")
+    adm2_res = os.path.join(xx.final_folder, "URBAN_ADMIN2_STATS_COMPILED.csv")
+    ea_res = os.path.join(xx.final_folder, "URBAN_COMMUNE_STATS_COMPILED.csv")
+    print(f"{iso3} ***1k Extracting Global Layers")
+    xx.extract_layers(global_landcover, global_ghspop, global_ghspop_1k, global_ghbuilt, ghsl_vrt, ghs_smod)
+    print(f"{iso3} ***1k Downloading and processing elevation")
+    xx.process_dem(global_dem=global_dem_1k)
+    print(f"{iso3} ***1k Standardizing rasters")
+    xx.standardize_rasters(include_ghsl_h20)
+    print(f"{iso3} ***1k Calculating Urban")
+    xx.calculate_urban()
+    print(f"{iso3} ***1k Calculating Zonal admin2")
+    if not os.path.exists(admin2_1k_stats):
+        zonal_adm2 = xx.pop_zonal_admin(inD2)
+        zonal_adm2.to_csv(admin2_1k_stats)
+        tPrint(f"{iso3} ***1k Calculating Zonal communes")
+        if os.path.exists(ea_file):
+            inEA = gpd.read_file(ea_file)
+            zonal_ea = xx.pop_zonal_admin(inEA)
+            zonal_ea.to_csv(commune_1k_stats)
+    if evaluate:
+        tPrint(f"{iso3} ***1k Evaluating Data")
+        xx.evaluateOutput(admin2_1k_stats, commune_1k_stats)
 
 
 

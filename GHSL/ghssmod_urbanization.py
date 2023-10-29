@@ -1,6 +1,13 @@
 #Author: Lydia Teinfalt
-#Last updated date: 06/05/2023
-##Data downloaded from https://ghsl.jrc.ec.europa.eu/download.php?ds=pop
+#Last updated date: 10/29/2023
+#GHS-MOD Data downloaded from https://ghsl.jrc.ec.europa.eu/download.php?ds=pop
+#2022 UN OCHA Shape file download from https://data.humdata.org/dataset/cod-ab-pak
+###################################################################################
+###                 Create a directory for each year analyzed
+###                 For each year, create a directory "admin units" and place  shape files
+###                 Modify years variable to process years
+
+
 
 import geopandas as gpd
 import pandas as pd
@@ -15,17 +22,18 @@ import rioxarray
 
 smod_vals = [10, 11, 12, 13, 21, 22, 23, 30]
 #years = ["2000", "1995", "1990", "1985", "1980"]
-years = ["2010"]
+years = ["2020"]
 #read input files
 iso3 = 'PAK'
 shortnm = 'adm0'
 adm0 = ''
 homedir = os.getcwd()
+admin_input_dir = 'admin units'
 
 
 for year in years:
     ghssmod_file = year + "_" + "GHS" + "_" + iso3 + "_" + "SMOD" + '.tif'
-    shape_file = "pak_admbnda_adm0_ocha_pco_gaul_20181218.shp"
+    shape_file = "pak_admbnda_adm0_wfp_20220909"
     aoi_pop = year + "_" + "GHS" + "_" + iso3 + "_" + "POP" + '.tif'
     outdir = os.path.join(homedir, year)
 
@@ -44,6 +52,7 @@ for year in years:
         inA_out = inA_mw.to_crs(xpop.rio.crs)
         df_zones = inA_out[["Shape_Area", adm_code, adm_en]]
         geom = inA_out[['geometry', "Shape_Area"]].values.tolist()
+        final_df = pd.DataFrame()
 
         for val in smod_vals:
             cur_smod = (smod_file == val).astype(int)
@@ -65,32 +74,25 @@ for year in years:
             fields_rasterized_xarr.data = fields_rasterized
 
             results= zonal_stats(fields_rasterized_xarr, smod_pop, stats_funcs=['sum'])
-            #res = rMisc.zonalStats(inA, out_name, minVal=0)
-            #res = pd.DataFrame(res, columns=["%s_%s_%s" % (x, year + "_" + adm, val) for x in ['SUM', 'MIN', 'MAX', 'MEAN']])
-            #res = pd.DataFrame(res, columns=["%s_%s_%s" % (x, year + "_" + adm, val) for x in ['SUM']])
-            #df1 = [df_zones,results]
-            df_zones['Shape_Area'] = df_zones['Shape_Area'].astype(np.float32)
-            #results['zone'] = results['zone'].astype(np.float64)
-            print(df_zones.dtypes)
-            print(results.dtypes)
-            results = results.rename(columns={'sum': 'sum_'+ str(val) } )
-            final =pd.merge(df_zones, results, how="left", left_on='Shape_Area', right_on='zone')
-            #df_zones = final
-            df_zones = df_zones.rename(columns={'zone': 'zone_' + str(val)})
-            df_zones = df_zones[df_zones.columns.drop(list(df_zones.filter(regex='zone')))]
-            print(final)
 
-            #try:
-            #    final = final.join(stat)
-            #except:
-            #    final = stat
-        final_stats = pd.DataFrame(stats)
-        final_df = [df_zones, final_stats]
-        final = pd.concat(final_df, axis = 1)
+            # disable chained assignments
+            pd.options.mode.chained_assignment = None
+
+            df_zones['Shape_Area'] = df_zones['Shape_Area'].astype(np.float32)
+            results = results.rename(columns={'sum': 'sum_'+ str(val) } )
+            final = df_zones.merge(results, how="left", left_on='Shape_Area', right_on='zone')
+            final = final.drop('zone', axis = 1)
+            final.iloc[:, -1:] = final.iloc[:, -1].apply(pd.to_numeric).round(5)
+
+            if final_df.empty:
+                final_df = final
+            else:
+                final_df = pd.concat([final_df, final], axis= 1)
+                final_df = final_df.loc[:, ~final_df.columns.duplicated()].copy()
+
 
         output_file = os.path.join(outdir, year + "_" + iso3 + "_" + adm + ".csv")
-
-        final.to_csv(os.path.join(output_file))
+        final_df.to_csv(os.path.join(output_file))
 
 
     def find_country_shapefile(year):
@@ -143,7 +145,7 @@ for year in years:
     inPop = inPop * (inPop > 0)
     total_pop = inPop.sum()
 
-    os.chdir('admin units')
+    os.chdir(admin_input_dir)
     shape_files = os.listdir()
     adm = []
     for file in shape_files:

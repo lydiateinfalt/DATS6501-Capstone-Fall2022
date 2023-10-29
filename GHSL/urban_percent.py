@@ -15,7 +15,8 @@ import xarray as xr
 import rioxarray
 
 
-years = ["1975", "1980", "1985", "1990", "1995", "2000","2005","2010","2015","2020"]
+#years = ["1975", "1980", "1985", "1990", "1995", "2000","2005","2010","2015","2020"]
+years = ["2010"]
 #read input files
 homedir = os.getcwd()
 all_csv_files = []
